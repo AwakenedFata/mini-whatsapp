@@ -43,6 +43,7 @@ Bangun backend bagian penyimpanan data terlebih dahulu sebelum membuat koneksi j
    * Membuat tabel `messages` (id, clientMessageId, senderId, recipientId, ciphertext, iv, senderPublicKey, createdAt, deliveredAt, readAt, expiresAt, mediaId).
 2. [server/src/presence/manager.js](file:///d:/distributed-system/server/src/presence/manager.js):
    * Menggunakan objek `new Map()` di memori untuk mencatat socket user yang sedang online.
+   * Fungsi `setOffline(userId, ws)` memvalidasi instance socket agar socket lama yang putus tidak menghapus user yang sudah berhasil *reconnect*.
 3. [server/view-db.js](file:///d:/distributed-system/server/view-db.js):
    * Script CLI sederhana untuk membaca tabel `messages` lewat terminal.
 
@@ -82,7 +83,7 @@ Setelah server punya storage dan klien punya kriptografi, barulah sambungkan ked
    * Menambahkan pembersih pesan kedaluwarsa (`setInterval` 60 detik).
 2. [server/src/websocket/handler.js](file:///d:/distributed-system/server/src/websocket/handler.js):
    * Menerima koneksi WebSocket.
-   * Menangani event dasar: `AUTH`, `PING`, dan penutupan koneksi (`on('close')`).
+   * Menangani event dasar: `AUTH`, `PING`, dan penutupan koneksi (`ws.on('close')` dengan memanggil `setOffline(currentUser, ws)`).
 3. [web/lib/websocket.js](file:///d:/distributed-system/web/lib/websocket.js):
    * Fungsi `connectWebSocket()` dengan mekanisme **Exponential Backoff** (`reconnectInterval = Math.min(reconnectInterval * 2, maxReconnectInterval)`).
    * Antrean internal `messageQueue` jika socket belum siap.
@@ -119,9 +120,9 @@ Memisahkan jalur data biner dari pipa WebSocket.
 
 **File yang Ditulis:**
 1. [server/src/media/router.js](file:///d:/distributed-system/server/src/media/router.js):
-   * Konfigurasi `multer` untuk menerima file upload HTTP POST.
+   * Konfigurasi `multer` dengan `fileFilter` untuk menerima file upload gambar (`image/*`).
    * Menyimpan file ke `server/uploads/` dengan penamaan `uuidv4()`.
-   * Endpoint GET `/api/media/:mediaId` untuk streaming gambar.
+   * Endpoint GET `/api/media/:mediaId` untuk streaming gambar dengan sanitasi `path.basename` agar aman dari celah *path traversal*.
 2. Daftarkan router ini di [server/src/index.js](file:///d:/distributed-system/server/src/index.js) pada baris `app.use('/api/media', mediaRouter)`.
 
 **Makna/Esensi:**
@@ -138,14 +139,14 @@ Menghubungkan semua fungsi backend, IndexedDB, dan WebCrypto ke dalam antarmuka 
 1. **State:** Menyimpan `currentUser`, `recipient`, `messages`, `connectionState`, `selectedFile`.
 2. **Koneksi Otomatis:** `useEffect` untuk login dan inisialisasi kunci kriptografi.
 3. **Penanganan Event WebSocket (`handleWsMessage`):**
-   * Mengubah status pesan lokal saat menerima `MESSAGE_ACK`, `DELIVERY_UPDATE`, dan `READ_UPDATE`.
+   * Mengubah status pesan lokal saat menerima `MESSAGE_ACK` (sekaligus menyinkronkan `createdAt` dengan `serverReceivedAt`), `DELIVERY_UPDATE`, dan `READ_UPDATE`.
    * Mendekripsi teks dan membalas `DELIVERY_ACK` saat menerima `DELIVER_MESSAGE`.
 4. **Fungsi Kirim (`handleSend`):**
    * Upload file media jika ada -> Enkripsi teks -> Simpan ke IndexedDB (`LOCAL_PENDING`) -> Kirim ke WebSocket jika online.
 5. **Render Komponen UI:**
-   * Header chat yang jelas (*Chat Dengan* vs *Akun Anda*).
+   * Header chat yang jelas (*Chat Dengan* vs badge *Akun Anda*).
    * Daftar bubble chat dengan indikator centang dan penampil gambar.
-   * Developer Panel untuk simulasi offline, gagal database, dan tombol Force Retry Outbox.
+   * Developer Panel dengan fungsi `setDbFailureState(fail: boolean)` untuk tombol NORMAL dan FAIL, serta tombol Force Retry Outbox.
    * Auto-scroll menggunakan `useRef` dan `scrollIntoView()`.
 
 ---
