@@ -158,6 +158,4 @@ Jika kamu ingin mulai menulis manual sekarang:
 3. Ketik baris demi baris mengikuti urutan **Tahap 1 sampai 7** di atas.
 4. Di setiap akhir tahap, jalankan dan tes seperti instruksi yang saya berikan.
 
-Dengan menyelesaikan penulisan ini sendiri, saat presentasi di depan dosen kamu tidak akan ragu atau bingung lagi, karena kamu tahu persis alasan setiap baris kode itu ditaruh di sana.
-
-Viewed package.json:1-16
+Dengan menyelesaikan penulisan ini sendiri, saat presentasi di depan dosen kamu tidak akan ragu atau bingung lagi, karena kamu tahu persis alasan setiap baris kode itu ditaruh di sana.

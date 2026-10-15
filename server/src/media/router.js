@@ -22,7 +22,14 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: parseInt(process.env.MAX_MEDIA_SIZE_MB || 10) * 1024 * 1024 }
+    limits: { fileSize: parseInt(process.env.MAX_MEDIA_SIZE_MB || 10) * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'));
+        }
+    }
 });
 
 router.post('/upload', upload.single('media'), (req, res) => {
@@ -33,7 +40,8 @@ router.post('/upload', upload.single('media'), (req, res) => {
 });
 
 router.get('/:mediaId', (req, res) => {
-    const filePath = path.join(uploadDir, req.params.mediaId);
+    const safeFilename = path.basename(req.params.mediaId);
+    const filePath = path.join(uploadDir, safeFilename);
     if (fs.existsSync(filePath)) {
         res.sendFile(filePath);
     } else {

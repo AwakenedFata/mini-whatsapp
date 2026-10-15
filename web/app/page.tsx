@@ -244,15 +244,15 @@ export default function Home() {
         }
     };
 
-    const toggleDbFailure = async () => {
-        const newVal = !serverFail;
-        setServerFail(newVal);
+    const setDbFailureState = async (fail: boolean) => {
+        if (serverFail === fail) return;
+        setServerFail(fail);
         await fetch(`${process.env.NEXT_PUBLIC_MESSAGE_SERVER_URL || (typeof window !== 'undefined' ? `http://${window.location.hostname}:4000` : 'http://localhost:4000')}/api/simulate-db-failure`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fail: newVal })
+            body: JSON.stringify({ fail })
         });
-        addLog(`[SIMULATION] Server DB Failure: ${newVal}`);
+        addLog(`[SIMULATION] Server DB Failure: ${fail}`);
     };
 
     if (!currentUser) {
@@ -443,11 +443,11 @@ export default function Home() {
                             <div className="flex gap-1">
                                 <button
                                     className={`px-3 py-1 rounded text-xs font-bold ${!serverFail ? 'bg-green-600 text-white' : 'bg-gray-700'}`}
-                                    onClick={() => toggleDbFailure()}
+                                    onClick={() => setDbFailureState(false)}
                                 >NORMAL</button>
                                 <button
                                     className={`px-3 py-1 rounded text-xs font-bold ${serverFail ? 'bg-red-600 text-white' : 'bg-gray-700'}`}
-                                    onClick={() => toggleDbFailure()}
+                                    onClick={() => setDbFailureState(true)}
                                 >FAIL</button>
                             </div>
                         </div>
