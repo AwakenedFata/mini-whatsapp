@@ -1,0 +1,17 @@
+node_modules/
+.DS_Store
+
+# Next.js build outputs
+.next/
+web/.next/
+out/
+build/
+
+# Local databases and uploads
+server/data/*.db
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Environment variables
+.env*.local
+.env

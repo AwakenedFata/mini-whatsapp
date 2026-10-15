@@ -1,0 +1,15 @@
+{
+  "name": "distributed-system",
+  "version": "1.0.0",
+  "description": "Mini WhatsApp",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../web && npm install",
+    "dev": "concurrently \"npm run web\" \"npm run server\"",
+    "web": "cd web && npm run dev",
+    "server": "cd server && node src/index.js",
+    "test": "echo \"Tests pending\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
