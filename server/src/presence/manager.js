@@ -5,9 +5,13 @@ function setOnline(userId, ws) {
     console.log(`[PRESENCE] User ${userId} is now ONLINE`);
 }
 
-function setOffline(userId) {
-    onlineUsers.delete(userId);
-    console.log(`[PRESENCE] User ${userId} is now OFFLINE`);
+function setOffline(userId, ws) {
+    if (!ws || onlineUsers.get(userId) === ws) {
+        onlineUsers.delete(userId);
+        console.log(`[PRESENCE] User ${userId} is now OFFLINE`);
+    } else {
+        console.log(`[PRESENCE] Ignored stale disconnect for ${userId}`);
+    }
 }
 
 function isOnline(userId) {

@@ -98,7 +98,11 @@ export default function Home() {
         switch (data.type) {
             case 'MESSAGE_ACK':
                 addLog(`[ACK] Server ACK for ${data.payload.clientMessageId}`);
-                await updateMessageStatus(data.payload.clientMessageId, 'SENT', { serverMessageId: data.payload.serverMessageId, serverReceivedAt: data.payload.serverReceivedAt });
+                await updateMessageStatus(data.payload.clientMessageId, 'SENT', { 
+                    serverMessageId: data.payload.serverMessageId, 
+                    serverReceivedAt: data.payload.serverReceivedAt,
+                    createdAt: data.payload.serverReceivedAt || Date.now()
+                });
                 loadMessages();
                 break;
             case 'DELIVERY_UPDATE':

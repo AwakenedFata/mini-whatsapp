@@ -50,8 +50,8 @@ function handleConnection(ws) {
 
     ws.on('close', () => {
         if (currentUser) {
-            setOffline(currentUser);
-            console.log(`[WS] User ${currentUser} disconnected`);
+            setOffline(currentUser, ws);
+            console.log(`[WS] Connection closed for ${currentUser}`);
         }
     });
 
